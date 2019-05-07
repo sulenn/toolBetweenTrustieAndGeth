@@ -1,6 +1,6 @@
 // 本文件是 uploadGethInfo 的模块化，用于其它逻辑调用
 
-function validate_uploadGethInfo_module() {
+function uploadGethInfo_module() {
     var uploadGethInfo = new Object();  //传入 geth 的数据
     var reg = /[^\n]+/;   //用于去掉各种字符串尾部 \n 换行符
     var execSync = require('child_process').execSync;
@@ -64,4 +64,4 @@ function validate_uploadGethInfo_module() {
     return JSON.stringify(uploadGethInfo);
 }
 
-module.exports = validate_uploadGethInfo_module;
+module.exports = uploadGethInfo_module;

@@ -20,11 +20,24 @@ if (!allHashUnderPush.toString()) {
 }
 
 //获取传入 geth 的数据信息
-var validate_uploadGethInfo = require('./validate_uploadGethInfo_module');
-var uploadGethInfo = validate_uploadGethInfo();
-// console.log("数据为：\n\n", uploadGethInfo);
+var uploadGethInfo_module = require('./uploadGethInfo_module');
+var uploadGethInfo = uploadGethInfo_module();
 
-//上传 uploadGethInfo 信息
+//执行 git push 操作
+unfixedCmd = "push";
+execSync(fixedCmd + unfixedCmd);  // 无法获得 git push 的返回值
+
+//判断 git push 操作是否成功（不晓得怎么获得 git push 的返回内容，于是再用一次 git cherry 来判断）
+unfixedCmd = "cherry";
+allHashUnderPush = execSync(fixedCmd + unfixedCmd);
+if (!allHashUnderPush.toString()) {
+    console.log("git push 提交成功！");
+} else {
+    console("git push 提交失败！");
+    return;
+}
+
+//上传 uploadGethInfo 信息，上传成功后将 uploadGethInfo 传入 geth
 var url = "http://127.0.0.1:8000/uploardFinalInfo/";
 const request = require('request');
 request({
@@ -47,6 +60,7 @@ request({
         // 判断是否连接成功
         if(!web3.isConnected()) {
             console.log("连接失败！！")
+            return;
         } else {
             console.log("连接成功！！")
         }
@@ -61,17 +75,9 @@ request({
         var result1 = contract.set.sendTransaction(uploadGethInfo,{from:accounts[0], gas:gasValue});
         console.log(result1);
     } else {
+        console.log("上传 django 出错！！！\n\n");
         console.log(body);
+        return;
     }
 }); 
 
-// //执行 git push 操作
-// unfixedCmd = "push";
-// execSync(fixedCmd + unfixedCmd);  // 无法获得 git push 的返回值
-
-// //判断 git push 操作是否成功（不晓得怎么获得 git push 的返回内容，于是再用一次 git cherry 来判断）
-// unfixedCmd = "cherry";
-// allHashUnderPush = execSync(fixedCmd + unfixedCmd);
-// if (!allHashUnderPush.toString()) {
-//     console.log("git push 提交成功！");
-// }

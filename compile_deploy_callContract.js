@@ -27,15 +27,11 @@ var input = {
 //编译合约源码
 var output = JSON.parse(solc.compile(JSON.stringify(input)))
 
-//获取编译后的 bytecode、abi 和 gas
+//获取编译后的 bytecode、abi
 var abi = JSON.stringify(output.contracts['trustieTransaction.sol'].trustieTransaction.abi);
 // console.log("abi：", abi);
 var bytecode = output.contracts['trustieTransaction.sol'].trustieTransaction.evm.bytecode.object;
 // console.log("\n\nbytecode：", bytecode);
-var gas = output.contracts['trustieTransaction.sol'].trustieTransaction.evm.gasEstimates.creation.totalCost;
-// console.log("\n\ngas：", gas);
-
-
 
 // 连接本地启动的 geth rpc 服务，连接成功之后进行如发起交易等操作
 var Web3 = require('web3')
@@ -64,17 +60,14 @@ var trustietransaction = trustietransactionContract.new(
      from: web3.eth.accounts[0], 
 	 data: "0x" + bytecode, 
 	 gas: realGas     //估计所需消耗的 gas 值
-	//  gas: '4700000'  //修改源码，将 storedData 字符串初始化为 “qiubing”。编译源码获得的 gas 值为 `infinite`，导致出错，于是这儿固定一个 `4700000`值
-	//  gas: String(parseInt(gas) * 10)  //由于 solc 编译出来的 gas 过低，会导致 gas 不足的问题，于是 * 10
    }, function (e, contract){
-    // console.log(e, contract);
     if (typeof contract.address !== 'undefined') {
 		 console.log('\nContract mined! address: ' + contract.address + ' transactionHash: ' + contract.transactionHash + "\n");
 		
 		//  检测合约是否部署成功
 		 var contract = web3.eth.contract(JSON.parse(abi)).at(contract.address);
 		 var result = contract.get();
-		 console.log("\n" + result)
+		 console.log(result)
 	}
  })
 
