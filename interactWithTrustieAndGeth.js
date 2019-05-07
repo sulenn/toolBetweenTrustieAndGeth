@@ -38,7 +38,7 @@ if (!allHashUnderPush.toString()) {
 }
 
 //上传 uploadPushInfo 信息，上传成功后将 uploadPushInfo 传入 geth
-var url = "http://127.0.0.1:8000/uploardFinalInfo/";
+var url = "http://127.0.0.1:8000/uploardPushInfo/";
 const request = require('request');
 request({
     url: url,
