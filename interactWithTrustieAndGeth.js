@@ -20,8 +20,8 @@ if (!allHashUnderPush.toString()) {
 }
 
 //获取传入 geth 的数据信息
-var uploadGethInfo_module = require('./uploadGethInfo_module');
-var uploadGethInfo = uploadGethInfo_module();
+var uploadPushInfo_module = require('./uploadPushInfo_module');
+var uploadPushInfo = uploadPushInfo_module();
 
 //执行 git push 操作
 unfixedCmd = "push";
@@ -37,7 +37,7 @@ if (!allHashUnderPush.toString()) {
     return;
 }
 
-//上传 uploadGethInfo 信息，上传成功后将 uploadGethInfo 传入 geth
+//上传 uploadPushInfo 信息，上传成功后将 uploadPushInfo 传入 geth
 var url = "http://127.0.0.1:8000/uploardFinalInfo/";
 const request = require('request');
 request({
@@ -47,7 +47,7 @@ request({
     headers: {
         "content-type": "application/json",
     },
-    body: uploadGethInfo
+    body: uploadPushInfo
 }, function(error, response, body) {
     if (body.status == 200) {
         var Web3 = require('web3')
@@ -71,8 +71,8 @@ request({
         var contractABI = [{"constant":true,"inputs":[],"name":"storedData","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"x","type":"string"}],"name":"set","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"get","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"}]
 
         var contract = web3.eth.contract(contractABI).at(contractAddress);
-        var gasValue = contract.set.estimateGas(uploadGethInfo)  //估计所需要消耗的 gas 值
-        var result1 = contract.set.sendTransaction(uploadGethInfo,{from:accounts[0], gas:gasValue});
+        var gasValue = contract.set.estimateGas(uploadPushInfo)  //估计所需要消耗的 gas 值
+        var result1 = contract.set.sendTransaction(uploadPushInfo,{from:accounts[0], gas:gasValue});
         console.log(result1);
     } else {
         console.log("上传 django 出错！！！\n\n");

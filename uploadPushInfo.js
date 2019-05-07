@@ -1,7 +1,7 @@
 // 获取并组织传入 geth 的 data 信息，包括两次 hash 、当前所处分支 branch、用户名 username、项目名 projectname 和本次 push 的 diff 内容
 // 两次 hash 包括获取本次 push 单位的最新 commit hash 和 最旧的 commit hash
 
-var uploadGethInfo = new Object();  //传入 geth 的数据
+var uploadPushInfo = new Object();  //传入 geth 的数据
 var reg = /[^\n]+/;   //用于去掉各种字符串尾部 \n 换行符
 var execSync = require('child_process').execSync;
 var fixedCmd = "git --git-dir=/home/qiubing/qiubing/blogDir/.git ";
@@ -10,7 +10,7 @@ var unfixedCmd = "rev-parse HEAD";
 //获取最新的 hash 值，字节类型
 var newestHash = execSync(fixedCmd + unfixedCmd);
 // console.log("最新的 hash 值：",reg.exec(newestHash.toString())[0]);
-uploadGethInfo["newestHash"] = reg.exec(newestHash.toString())[0];
+uploadPushInfo["newestHash"] = reg.exec(newestHash.toString())[0];
 
 //获取当前 push 单位所有尚未提交的 hash 值
 unfixedCmd = "cherry";   
@@ -33,13 +33,13 @@ for (var i = 1; i < hashArr.length; i += 1) {   //注意这儿 i 从 1 开始
 }
 var oldestHash = execSync(fixedCmd + unfixedCmd); 
 // console.log("\n最旧的 hash 值：", reg.exec(oldestHash.toString())[0]);
-uploadGethInfo["oldestHash"] = reg.exec(oldestHash.toString())[0];
+uploadPushInfo["oldestHash"] = reg.exec(oldestHash.toString())[0];
 
 //获取当前所处分支
 unfixedCmd = "symbolic-ref --short -q HEAD";
 var branch = execSync(fixedCmd + unfixedCmd);
 // console.log("\n当前所处分支 branch：", reg.exec(branch.toString())[0]);
-uploadGethInfo["branch"] = reg.exec(branch.toString())[0];
+uploadPushInfo["branch"] = reg.exec(branch.toString())[0];
 
 //获取用户名和项目名
 unfixedCmd = "remote -v";
@@ -52,13 +52,13 @@ var username = strArr[3];
 // console.log("\nusername：", username);
 var projectName = strArr[4].slice(0, strArr[4].length - 4);    //考虑到 projectName 中可以包含 . 小数点等特殊符号，于是就用 slice 按字符串长度来截取
 // console.log("\nprojectName：", projectName);
-uploadGethInfo["username"] = username;
-uploadGethInfo["projectName"] = projectName;
+uploadPushInfo["username"] = username;
+uploadPushInfo["projectName"] = projectName;
 
 //获取两次 hash 之间的 diff 内容
-unfixedCmd = "diff " + uploadGethInfo["newestHash"] + " " + uploadGethInfo["oldestHash"];
+unfixedCmd = "diff " + uploadPushInfo["newestHash"] + " " + uploadPushInfo["oldestHash"];
 var diff = execSync(fixedCmd + unfixedCmd);
 // console.log("\ndiff：", diff.toString());
-uploadGethInfo["diff"] = diff.toString();
-// console.log(uploadGethInfo);
-console.log(JSON.stringify(uploadGethInfo));
+uploadPushInfo["diff"] = diff.toString();
+// console.log(uploadPushInfo);
+console.log(JSON.stringify(uploadPushInfo));
