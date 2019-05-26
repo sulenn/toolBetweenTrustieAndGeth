@@ -1,16 +1,14 @@
 // 本文件是 uploadPushInfo 的模块化，用于其它逻辑调用
 
 function uploadPushInfo_module() {
-    var uploadPushInfo = new Object();  //传入 Push 的数据
+    // 获取并组织传入 geth 的 data 信息，包括当前 push 阶段的所有 hash 、当前所处分支 branch、用户名 owner、项目名 reponame
+
+    var uploadPushInfo = new Object();  //传入 geth 的数据
     var reg = /[^\n]+/;   //用于去掉各种字符串尾部 \n 换行符
     var execSync = require('child_process').execSync;
-    var fixedCmd = "git --git-dir=/home/qiubing/qiubing/blogDir/.git ";
+    // var fixedCmd = "git --git-dir=/home/qiubing/qiubing/blogDir/.git ";
+    var fixedCmd = "git --git-dir=/home/qiubing/桌面/trustietest/.git ";
     var unfixedCmd = "rev-parse HEAD";
-
-    //获取最新的 hash 值，字节类型
-    var newestHash = execSync(fixedCmd + unfixedCmd);
-    // console.log("最新的 hash 值：",reg.exec(newestHash.toString())[0]);
-    uploadPushInfo["newestHash"] = reg.exec(newestHash.toString())[0];
 
     //获取当前 push 单位所有尚未提交的 hash 值
     unfixedCmd = "cherry";   
@@ -20,20 +18,18 @@ function uploadPushInfo_module() {
         console.log("错误！本地当前分支没有对应的远程分支！");
         return;
     }
-
-    //获取当前 push 模块最旧的 hash 值
-    var hashArr = allHashUnderPush.toString().split("\n");   //因为每个 hash 都带有一个 \n 分行符，故数组长度为 hash 数量 + 1
-    unfixedCmd = "rev-parse HEAD";   //HEAD 指向最新的 hash值， HEAD^ 指向第二新的 hash 值，以此类推
-    if (hashArr.length < 2) {  //假如没有任何提交，则 hashArr 的值为 “”，长度为 1
+    if (!allHashUnderPush.toString()) {
         console.log("当前 repo 没有新的 commit 提交！");
         return;
     }
-    for (var i = 1; i < hashArr.length; i += 1) {   //注意这儿 i 从 1 开始
-        unfixedCmd = unfixedCmd + "^";
+
+    // 获取所有待 push 提交的 hash 值
+    var pendingArr = allHashUnderPush.toString().split("\n");   //因为每个 hash 都带有一个 \n 分行符，故数组长度为 hash 数量 + 1
+    var hashArr = [];
+    for (var i = 0; i < pendingArr.length - 1; i += 1) {   //注意这儿 i 从 1 开始
+        hashArr.push(pendingArr[i].substring(2,42))  //取第 2 到 第 41 个字节
     }
-    var oldestHash = execSync(fixedCmd + unfixedCmd); 
-    // console.log("\n最旧的 hash 值：", reg.exec(oldestHash.toString())[0]);
-    uploadPushInfo["oldestHash"] = reg.exec(oldestHash.toString())[0];
+    uploadPushInfo["commithash"] = hashArr
 
     //获取当前所处分支
     unfixedCmd = "symbolic-ref --short -q HEAD";
@@ -52,16 +48,10 @@ function uploadPushInfo_module() {
     // console.log("\nusername：", username);
     var projectName = strArr[4].slice(0, strArr[4].length - 4);    //考虑到 projectName 中可以包含 . 小数点等特殊符号，于是就用 slice 按字符串长度来截取
     // console.log("\nprojectName：", projectName);
-    uploadPushInfo["username"] = username;
-    uploadPushInfo["projectName"] = projectName;
+    uploadPushInfo["owner"] = username;
+    uploadPushInfo["reponame"] = projectName;
 
-    //获取两次 hash 之间的 diff 内容
-    unfixedCmd = "diff " + uploadPushInfo["newestHash"] + " " + uploadPushInfo["oldestHash"];
-    var diff = execSync(fixedCmd + unfixedCmd);
-    // console.log("\ndiff：", diff.toString());
-    uploadPushInfo["diff"] = diff.toString();
-    // console.log(JSON.stringify(uploadPushInfo));
-    return JSON.stringify(uploadPushInfo);
+    return JSON.stringify(uploadPushInfo)
 }
 
 module.exports = uploadPushInfo_module;

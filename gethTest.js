@@ -1,29 +1,12 @@
-// 第三次模拟所有流程，首先将本次需要 push 的内容组织成最终需要传入 geth 的格式 format1
-//然后判断 git push 是否成功。如果 push 失败就终止
-// 如果 push 成功，就将 format1 上传至 django，记为 format2（这一步骤用于模拟 trustie 需要提供的功能，就是通过若干信息获取本次 push 的 diff 内容）
-//上传成功后，将 format1 传入 geth，geth 从 django 获取 format2，对比，输出结果
+var uploadPushInfo = new Object()
+uploadPushInfo["shaList"] = ["c492c241e28b027efd4806f79ff6bc11c5b92979", "7a3437f18dfc2191dddf4255e42a9a39747918dc"]
+uploadPushInfo["branch"] = "master"
+uploadPushInfo["ownername"] = "Nigel"
+uploadPushInfo["reponame"] = "trustietest"
+uploadPushInfo["username"] = "Nigel"
+uploadPushInfo["password"] = "Nigel.zhang007"
+uploadPushInfo = JSON.stringify(uploadPushInfo)
 
-var execSync = require('child_process').execSync;
-var fixedCmd = "git --git-dir=/home/qiubing/桌面/trustietest/.git ";
-var unfixedCmd = "cherry";
-
-//获取传入 geth 的数据信息
-var uploadPushInfo_module = require('./uploadPushInfo_module');
-var uploadPushInfo = uploadPushInfo_module();
-
-//执行 git push 操作
-unfixedCmd = "push";
-execSync(fixedCmd + unfixedCmd);  // 无法获得 git push 的返回值
-
-//判断 git push 操作是否成功（不晓得怎么获得 git push 的返回内容，于是再用一次 git cherry 来判断）
-unfixedCmd = "cherry";
-allHashUnderPush = execSync(fixedCmd + unfixedCmd);
-if (!allHashUnderPush.toString()) {
-    console.log("git push 提交成功！");
-} else {
-    console("git push 提交失败！");
-    return;
-}
 
 var Web3 = require('web3')
 // 连接本地启动的 geth rpc 服务
@@ -48,4 +31,3 @@ var contract = web3.eth.contract(contractABI).at(contractAddress);
 var gasValue = contract.set.estimateGas(uploadPushInfo)  //估计所需要消耗的 gas 值
 var result1 = contract.set.sendTransaction(uploadPushInfo,{from:accounts[0], gas:gasValue});
 console.log(result1);
-
