@@ -4,20 +4,17 @@
 //上传成功后，将 format1 传入 geth，geth 从 django 获取 format2，对比，输出结果
 
 var execSync = require('child_process').execSync;
-var fixedCmd = "git --git-dir=/home/qiubing/桌面/trustietest/.git ";
-var unfixedCmd = "cherry";
 
 //获取传入 geth 的数据信息
 var uploadPushInfo_module = require('./uploadPushInfo_module');
 var uploadPushInfo = uploadPushInfo_module();
 
 //执行 git push 操作
-unfixedCmd = "push";
-execSync(fixedCmd + unfixedCmd);  // 无法获得 git push 的返回值
+execSync("git push");  // 无法获得 git push 的返回值
 
 //判断 git push 操作是否成功（不晓得怎么获得 git push 的返回内容，于是再用一次 git cherry 来判断）
 unfixedCmd = "cherry";
-allHashUnderPush = execSync(fixedCmd + unfixedCmd);
+allHashUnderPush = execSync("git cherry");
 if (!allHashUnderPush.toString()) {
     console.log("git push 提交成功！");
 } else {
